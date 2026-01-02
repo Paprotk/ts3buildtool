@@ -68,27 +68,23 @@ class S3BuildTool
 
             string dllPath = newestDll.FullName;
             Console.WriteLine($"[S3Build] Selected Source {config} DLL: {newestDll.Name}");
-
-            // 2. Find the Package
+            
             string modsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 "Electronic Arts", "The Sims 3", "Mods");
 
             string searchPattern = modName + ".package";
-
-            // Get all matches, then filter out skipped folders
+            
             var allFound = Directory.EnumerateFiles(modsDir, searchPattern, SearchOption.AllDirectories);
 
             var filteredPackages = allFound.Where(path =>
             {
-                // Split path into parts and check if any part is in our skip list
                 var pathParts = path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
                 return !pathParts.Any(part => skipList.Contains(part, StringComparer.OrdinalIgnoreCase));
             }).ToList();
-
-            // Check for multiple matches
+            
             if (filteredPackages.Count > 1)
             {
-                System.Media.SystemSounds.Hand.Play(); // Error sound
+                System.Media.SystemSounds.Hand.Play();
                 SetColor(ConsoleColor.Red);
                 Console.WriteLine($"[ERROR] Multiple packages found matching '{searchPattern}':");
                 foreach (var path in filteredPackages) Console.WriteLine($"  -> {path}");
