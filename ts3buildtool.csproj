@@ -15,17 +15,27 @@
 
     <ItemGroup>
         <Reference Include="s3pi.Interfaces">
-            <HintPath>..\..\MCR\Tools\s3pi.Interfaces.dll</HintPath>
+          <HintPath>..\..\..\Desktop\sims3-package-interface-main\S3PI-Library-DLLs\s3pi.Interfaces.dll</HintPath>
         </Reference>
         <Reference Include="s3pi.Package">
-            <HintPath>..\..\MCR\Tools\s3pi.Package.dll</HintPath>
+          <HintPath>..\..\..\Desktop\sims3-package-interface-main\S3PI-Library-DLLs\s3pi.Package.dll</HintPath>
         </Reference>
         <Reference Include="s3pi.ScriptResource">
-            <HintPath>..\..\MCR\Tools\s3pi.ScriptResource.dll</HintPath>
+          <HintPath>..\..\..\Desktop\sims3-package-interface-main\S3PI-Library-DLLs\s3pi.ScriptResource.dll</HintPath>
+        </Reference>
+        <Reference Include="s3pi.Settings">
+          <HintPath>..\..\..\Desktop\sims3-package-interface-main\S3PI-Library-DLLs\s3pi.Settings.dll</HintPath>
         </Reference>
         <Reference Include="s3pi.WrapperDealer">
-            <HintPath>..\..\MCR\Tools\s3pi.WrapperDealer.dll</HintPath>
+          <HintPath>..\..\..\Desktop\sims3-package-interface-main\S3PI-Library-DLLs\s3pi.WrapperDealer.dll</HintPath>
         </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Costura.Fody" Version="6.0.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
     </ItemGroup>
 
 </Project>

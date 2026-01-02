@@ -1,8 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "4q1VGFsmP18=",
+  "dgSpecHash": "gBZHTA9fhzE=",
   "success": true,
   "projectFilePath": "C:\\Users\\Arek\\RiderProjects\\ts3buildtool\\ts3buildtool\\ts3buildtool.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\Arek\\.nuget\\packages\\costura.fody\\6.0.0\\costura.fody.6.0.0.nupkg.sha512",
+    "C:\\Users\\Arek\\.nuget\\packages\\fody\\6.8.2\\fody.6.8.2.nupkg.sha512"
+  ],
   "logs": []
 }
