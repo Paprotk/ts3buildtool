@@ -3,9 +3,9 @@ A small C# utility for The Sims 3 modding that automatically imports your compil
 
 
 ## How it works
-This tool removes the need to manually open a package editor after every compile. It automates the "Compile -> Inject -> Test" loop.
+This tool removes the need to manually open a package editor after every compile.
 
-1.  **Build** your project in Rider or Visual Studio.
+1.  **Build** your project in your IDE.
 2.  **Locate**: The tool finds your new DLL and scans your `Mods` folder for the package.
 3.  **Inject**: It swaps the `S3SA` resource automatically.
 
