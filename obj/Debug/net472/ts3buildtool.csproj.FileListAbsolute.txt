@@ -14,10 +14,5 @@ C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\bin\Debug\net472\s3pi.Pack
 C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\bin\Debug\net472\s3pi.WrapperDealer.xml
 C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\bin\Debug\net472\System.Custom.xml
 C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\obj\Debug\net472\ts3build.855F1851.Up2Date
-C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\bin\Debug\net472\Costura.dll
-C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\bin\Debug\net472\s3pi.Interfaces.dll
-C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\bin\Debug\net472\s3pi.Package.dll
-C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\bin\Debug\net472\s3pi.ScriptResource.dll
-C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\bin\Debug\net472\s3pi.Settings.dll
-C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\bin\Debug\net472\s3pi.WrapperDealer.dll
-C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\bin\Debug\net472\System.Custom.dll
+C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\obj\Debug\net472\ts3buildtool.csproj.Fody.CopyLocal.cache
+C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\obj\Debug\net472\ts3buildtool.csproj.Fody.RuntimeCopyLocal.cache
