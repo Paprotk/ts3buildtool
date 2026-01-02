@@ -12,7 +12,7 @@ This tool removes the need to manually open s3pe after every compile.
 
 ## Setup
 1.  Download the latest release from the [Releases page](https://github.com/Paprotk/ts3buildtool/releases).
-2.  Place the `ts3buildtool.exe` into a **Tools** folder within your project solution.
+2.  Extract the **Tools** folder directly into your project's solution directory.
 3.  In your Mod project, go to **Properties > Build Events > Post-build event** and paste:
     `"$(SolutionDir)Tools\ts3buildtool.exe" "YourModName_*" "$(ConfigurationName)"`
 
