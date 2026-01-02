@@ -1,0 +1,5 @@
+C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\obj\Debug\net6.0\ts3buildtool.csproj.AssemblyReference.cache
+C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\obj\Debug\net6.0\ts3buildtool.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\obj\Debug\net6.0\ts3buildtool.AssemblyInfoInputs.cache
+C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\obj\Debug\net6.0\ts3buildtool.AssemblyInfo.cs
+C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\obj\Debug\net6.0\ts3buildtool.csproj.CoreCompileInputs.cache

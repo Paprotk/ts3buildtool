@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <UseWindowsForms>true</UseWindowsForms>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net472</TargetFramework>  <!-- Add this line -->
+        <LangVersion>default</LangVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <PlatformTarget>x86</PlatformTarget>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Reference Include="s3pi.Interfaces">
+            <HintPath>..\..\MCR\Tools\s3pi.Interfaces.dll</HintPath>
+        </Reference>
+        <Reference Include="s3pi.Package">
+            <HintPath>..\..\MCR\Tools\s3pi.Package.dll</HintPath>
+        </Reference>
+        <Reference Include="s3pi.ScriptResource">
+            <HintPath>..\..\MCR\Tools\s3pi.ScriptResource.dll</HintPath>
+        </Reference>
+        <Reference Include="s3pi.WrapperDealer">
+            <HintPath>..\..\MCR\Tools\s3pi.WrapperDealer.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+</Project>
