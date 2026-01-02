@@ -40,8 +40,7 @@ class S3BuildTool
             string solutionDir = solutionDirInfo.FullName;
 
             Console.WriteLine("--- Sims 3 Build Tool ---");
-
-            // 1. Find the DLL
+            
             var binFolders = Directory.GetDirectories(solutionDir, "bin", SearchOption.AllDirectories)
                 .SelectMany(bin => Directory.GetDirectories(bin, config))
                 .ToList();
