@@ -9,10 +9,10 @@ C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\bin\Debug\net472\ts3buildt
 C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\obj\Debug\net472\ts3buildtool.exe
 C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\obj\Debug\net472\ts3buildtool.pdb
 C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\obj\Debug\net472\ts3buildtool.sourcelink.json
-C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\obj\Debug\net472\ts3buildtool.csproj.Fody.CopyLocal.cache
-C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\obj\Debug\net472\ts3buildtool.csproj.Fody.RuntimeCopyLocal.cache
 C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\bin\Debug\net472\s3pi.Interfaces.xml
 C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\bin\Debug\net472\s3pi.Package.xml
 C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\bin\Debug\net472\s3pi.WrapperDealer.xml
 C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\bin\Debug\net472\System.Custom.xml
 C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\obj\Debug\net472\ts3build.855F1851.Up2Date
+C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\obj\Debug\net472\ts3buildtool.csproj.Fody.CopyLocal.cache
+C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\obj\Debug\net472\ts3buildtool.csproj.Fody.RuntimeCopyLocal.cache
