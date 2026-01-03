@@ -3,7 +3,7 @@ A small C# utility for The Sims 3 modding that automatically imports your compil
 
 
 ## How it works
-This tool removes the need to manually open s3pe after every compile.
+This tool removes the need to manually open s3pe after every compile to import .dll into s3sa resource.
 
 1.  **Build** your project in your IDE.
 2.  **Locate**: The tool finds your new DLL and scans your `Mods` folder for the package.
