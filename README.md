@@ -26,6 +26,6 @@ Arguments must be passed in this specific order:
 | **Config** | The build folder to look in (Debug/Release). | `"$(ConfigurationName)"` |
 | **Skip Folders** | *(Optional)* Folders to ignore in your Mods directory. | `"Backups,Old"` |
 
-
-## Licenses
-This project is licensed under the **GNU General Public License v3.0 (GPLv3)**.
+## Credits & Legal
+* This tool uses the **s3pi** library (Copyright © 2009 Peter L Jones).
+* Distributed under the GPLv3 license as a derivative work.
