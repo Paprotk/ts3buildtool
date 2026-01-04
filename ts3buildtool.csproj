@@ -24,6 +24,9 @@
       <Reference Include="s3pi.Interfaces">
         <HintPath>..\..\DLLS\s3pi\s3pi.Interfaces.dll</HintPath>
       </Reference>
+      <Reference Include="s3pi.NameMapResource">
+        <HintPath>..\..\..\Downloads\sims3-package-interface-main\S3PI-Library-DLLs\s3pi.NameMapResource.dll</HintPath>
+      </Reference>
       <Reference Include="s3pi.Package">
         <HintPath>..\..\DLLS\s3pi\s3pi.Package.dll</HintPath>
       </Reference>

@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using s3pi.Interfaces;
 using s3pi.Package;
-using ScriptResource;
 
 namespace S3BuildTool
 {
     // --- CONSTANTS AND MAPPINGS ---
     static class Sims3Constants
     {
+        public const uint Type_NameMap = 0x0166038C;
         public const uint Type_S3SA = 0x073FAA07;
         public const uint Type_STBL = 0x220557DA;
         public const ulong Fnv64Prime = 0x100000001b3;
@@ -32,7 +28,7 @@ namespace S3BuildTool
     {
         uint TargetType { get; }
         bool CanHandle(uint type, string name);
-        bool Process(IPackage pkg, string resName, uint resType, string resDir, string modName);
+        void Process(IPackage pkg, string resName, uint resType, string resDir, string modName, Dictionary<ulong, string> nameMap, string dllPath);
     }
 
     // --- PROCESSOR IMPLEMENTATIONS ---
@@ -42,13 +38,30 @@ namespace S3BuildTool
         public uint TargetType => Sims3Constants.Type_S3SA;
         public bool CanHandle(uint type, string name) => type == TargetType;
 
-        public bool Process(IPackage pkg, string resName, uint resType, string resDir, string modName)
+        public void Process(IPackage pkg, string resName, uint resType, string resDir, string modName, Dictionary<ulong, string> nameMap, string dllPath)
         {
             ulong hash = Program.HashFNV64(resName);
             IResourceKey key = new TGIBlock(1, null, resType, 0, hash);
-            pkg.AddResource(key, new MemoryStream(), false);
-            Program.Log($"[S3SA] Reserved entry for: {resName} (0x{hash:X16})", ConsoleColor.DarkCyan);
-            return true;
+
+            if (File.Exists(dllPath))
+            {
+                var script = new ScriptResource.ScriptResource(1, null);
+                using (FileStream fs = File.OpenRead(dllPath))
+                {
+                    // Directly use the Assembly property from your ScriptResource.cs
+                    script.Assembly = new BinaryReader(fs); 
+                    pkg.AddResource(key, script.Stream, false);
+                }
+                Program.Log($"[S3SA] Injected DLL: {resName} (0x{hash:X16})", ConsoleColor.Cyan);
+            }
+            else
+            {
+                Program.Log($"Warning: DLL not found at {dllPath}. Reserving empty S3SA.", ConsoleColor.Yellow);
+                pkg.AddResource(key, new MemoryStream(), false);
+                Console.Beep(600, 200);
+            }
+            
+            if (!nameMap.ContainsKey(hash)) nameMap.Add(hash, resName);
         }
     }
 
@@ -57,7 +70,7 @@ namespace S3BuildTool
         public uint TargetType => Sims3Constants.Type_STBL;
         public bool CanHandle(uint type, string name) => type == TargetType;
 
-        public bool Process(IPackage pkg, string resName, uint resType, string resDir, string modName)
+        public void Process(IPackage pkg, string resName, uint resType, string resDir, string modName, Dictionary<ulong, string> nameMap, string dllPath)
         {
             if (resName == "*.stbl")
             {
@@ -75,6 +88,7 @@ namespace S3BuildTool
                     {
                         ulong instanceId = ((ulong)locale.Value << 56) | modBaseHash;
                         pkg.AddResource(new TGIBlock(1, null, resType, 0, instanceId), new MemoryStream(File.ReadAllBytes(file)), false);
+                        if (!nameMap.ContainsKey(instanceId)) nameMap.Add(instanceId, fileName);
                         Program.Log($"[STBL] Injected {fileName} (0x{instanceId:X16})", ConsoleColor.DarkCyan);
                     }
                 }
@@ -86,11 +100,11 @@ namespace S3BuildTool
                 if (file != null)
                 {
                     pkg.AddResource(new TGIBlock(1, null, resType, 0, hash), new MemoryStream(File.ReadAllBytes(file)), false);
+                    if (!nameMap.ContainsKey(hash)) nameMap.Add(hash, resName);
                     Program.Log($"[STBL] Added {resName} (0x{hash:X16})", ConsoleColor.DarkCyan);
                 }
                 else Program.Log($"Warning: STBL file '{resName}' not found on disk!", ConsoleColor.Yellow);
             }
-            return false;
         }
     }
 
@@ -99,7 +113,7 @@ namespace S3BuildTool
         public uint TargetType => 0; 
         public bool CanHandle(uint type, string name) => true;
 
-        public bool Process(IPackage pkg, string resName, uint resType, string resDir, string modName)
+        public void Process(IPackage pkg, string resName, uint resType, string resDir, string modName, Dictionary<ulong, string> nameMap, string dllPath)
         {
             ulong hash = Program.HashFNV64(resName);
             string? file = Program.FindFile(resDir, resName);
@@ -107,13 +121,13 @@ namespace S3BuildTool
             if (file != null)
             {
                 pkg.AddResource(new TGIBlock(1, null, resType, 0, hash), new MemoryStream(File.ReadAllBytes(file)), false);
+                if (!nameMap.ContainsKey(hash)) nameMap.Add(hash, resName);
                 Program.Log($"[GENERIC] Added {resName} (0x{hash:X16})", ConsoleColor.DarkGray);
             }
             else if (!resName.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
             {
                 Program.Log($"Warning: Resource file '{resName}' not found on disk!", ConsoleColor.Yellow);
             }
-            return false;
         }
     }
 
@@ -132,7 +146,7 @@ namespace S3BuildTool
                 if (!paramsMap.ContainsKey("modname") || !paramsMap.ContainsKey("dllpath"))
                 {
                     Log("Error: Missing parameters -modName or -dllPath", ConsoleColor.Red);
-                    Console.Beep(440, 500); // Error beep
+                    Console.Beep(440, 500); 
                     return 1;
                 }
 
@@ -147,42 +161,30 @@ namespace S3BuildTool
                 string packagePath = Path.Combine(modsDir, "Packages", $"{modName}.package");
                 if (File.Exists(packagePath)) File.Delete(packagePath);
                 
-                bool s3saPlaceholderFound = false;
                 if (solutionDir != null) 
-                    s3saPlaceholderFound = BuildPackage(solutionDir, packagePath, modName);
-                
-                if (s3saPlaceholderFound)
-                {
-                    if (File.Exists(dllPath)) InjectDLL(packagePath, dllPath);
-                    else Log($"Error: DLL file not found at {dllPath}", ConsoleColor.Red);
-                }
-                else
-                {
-                    Log("Warning: No S3SA (0x073FAA07) resource entry found in nameMap.xml. DLL injection skipped.", ConsoleColor.Yellow);
-                    Console.Beep(600, 200); // Warning beep
-                }
+                    BuildPackage(solutionDir, packagePath, modName, dllPath);
 
                 Log("[SUCCESS] Package built successfully.", ConsoleColor.Green);
-                Console.Beep(1000, 300); // Success beep
+                Console.Beep(1000, 300); 
                 return 0;
             }
             catch (Exception ex)
             {
                 Log($"[FATAL ERROR] {ex.Message}", ConsoleColor.Red);
-                Console.Beep(440, 800); // Fatal error beep
+                Console.Beep(440, 800); 
                 return 1;
             }
             finally { Console.ForegroundColor = originalColor; }
         }
 
-        static bool BuildPackage(string solutionDir, string packagePath, string modName)
+        static void BuildPackage(string solutionDir, string packagePath, string modName, string dllPath)
         {
             string? resDir = Directory.GetDirectories(solutionDir, "resources", SearchOption.AllDirectories).FirstOrDefault();
             if (resDir == null) throw new Exception("Resources folder not found in solution.");
 
             IPackage pkg = Package.NewPackage(1);
             XDocument xml = XDocument.Load(Path.Combine(resDir, "nameMap.xml"));
-            bool foundS3SA = false;
+            Dictionary<ulong, string> collectedNames = new Dictionary<ulong, string>();
 
             foreach (var res in xml.Descendants("resource"))
             {
@@ -192,33 +194,31 @@ namespace S3BuildTool
                 var processor = processors.FirstOrDefault(p => resName != null && p.CanHandle(resType, resName)) ?? genericProcessor;
                 if (resName != null)
                 {
-                    if (processor.Process(pkg, resName, resType, resDir, modName)) 
-                        foundS3SA = true;
+                    processor.Process(pkg, resName, resType, resDir, modName, collectedNames, dllPath);
                 }
             }
+
+            WriteNameMap(pkg, collectedNames);
 
             pkg.SaveAs(packagePath);
             Package.ClosePackage(1, pkg);
-            return foundS3SA;
         }
 
-        static void InjectDLL(string pkgPath, string dllPath)
+        static void WriteNameMap(IPackage pkg, Dictionary<ulong, string> collectedNames)
         {
-            Log("Injecting DLL into S3SA resource...", ConsoleColor.Cyan);
-            IPackage pkg = Package.OpenPackage(1, pkgPath, true);
-            var entry = pkg.FindAll(e => e.ResourceType == Sims3Constants.Type_S3SA).FirstOrDefault();
+            if (collectedNames.Count == 0) return;
 
-            if (entry != null)
+            Log($"[NAMEMAP] Writing 0x0166038C with {collectedNames.Count} entries...", ConsoleColor.Cyan);
+            
+            var nameMapRes = new NameMapResource.NameMapResource(1, null);
+            foreach (var kvp in collectedNames)
             {
-                var script = new ScriptResource.ScriptResource(1, null);
-                using (FileStream fs = File.OpenRead(dllPath))
-                {
-                    script.Assembly = new BinaryReader(fs);
-                    pkg.ReplaceResource(entry, script);
-                }
-                pkg.SavePackage();
+                if (!nameMapRes.ContainsKey(kvp.Key))
+                    nameMapRes.Add(kvp.Key, kvp.Value);
             }
-            Package.ClosePackage(1, pkg);
+            
+            IResourceKey nameMapKey = new TGIBlock(1, null, Sims3Constants.Type_NameMap, 0, 0);
+            pkg.AddResource(nameMapKey, nameMapRes.Stream, false);
         }
 
         public static string? FindFile(string dir, string name)

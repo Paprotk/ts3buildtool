@@ -6,9 +6,14 @@
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=C_003A_005CUsers_005CArek_005CDesktop_005Csims3_002Dpackage_002Dinterface_002Dmain_005CS3PI_002DLibrary_002DDLLs_005Cs3pi_002ESettings_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=C_003A_005CUsers_005CArek_005CDesktop_005Csims3_002Dpackage_002Dinterface_002Dmain_005CS3PI_002DLibrary_002DDLLs_005Cs3pi_002EWrapperDealer_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=C_003A_005CUsers_005CArek_005CDownloads_005Csims3_002Dpackage_002Dinterface_002Dmain_005CS3PE_002DProgram_005Cs3pi_002EDefaultResource_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=C_003A_005CUsers_005CArek_005CDownloads_005Csims3_002Dpackage_002Dinterface_002Dmain_005CS3PI_002DLibrary_002DDLLs_005Cs3pi_002ENameMapResource_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=C_003A_005CUsers_005CArek_005CRiderProjects_005CDLLS_005Cs3pi_005Cs3pi_002EInterfaces_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=C_003A_005CUsers_005CArek_005CRiderProjects_005CDLLS_005Cs3pi_005Cs3pi_002EPackage_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=C_003A_005CUsers_005CArek_005CRiderProjects_005CDLLS_005Cs3pi_005Cs3pi_002EScriptResource_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=C_003A_005CUsers_005CArek_005CRiderProjects_005CDLLS_005Cs3pi_005Cs3pi_002ESettings_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=C_003A_005CUsers_005CArek_005CRiderProjects_005CDLLS_005Cs3pi_005Cs3pi_002EWrapperDealer_002Edll/@EntryIndexedValue">True</s:Boolean>
-	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=C_003A_005CUsers_005CArek_005CRiderProjects_005CMCR_005CTools_005Cs3pi_002ESettings_002Edll/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=C_003A_005CUsers_005CArek_005CRiderProjects_005CMCR_005CTools_005Cs3pi_002ESettings_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003ANameMapResource_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003F_002E_002E_003FAppData_003FRoaming_003FJetBrains_003FRider2025_002E3_003Fresharper_002Dhost_003FDecompilerCache_003Fdecompiler_003F672f614e60354f90bca68a5f7681d04e2800_003Fb0_003Fe3bf822d_003FNameMapResource_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
+  &lt;Assembly Path="C:\Users\Arek\Downloads\sims3-package-interface-main\S3PI-Library-DLLs\s3pi.NameMapResource.dll" /&gt;&#xD;
+&lt;/AssemblyExplorer&gt;</s:String></wpf:ResourceDictionary>
