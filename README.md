@@ -33,10 +33,10 @@ The tool uses named parameters, so the order of arguments does not matter.
 
 | Parameter | Description | Example |
 | :--- | :--- | :--- |
-| **-modName** | The filename of your package (without .package). | `-modName="Arro_MCR"` |
-| **-dllPath** | Path to the compiled assembly. Use the IDE macro. | `-dllPath="$(TargetPath)"` |
-| **-defaultPath** | *(Optional)* Sub-folder in Mods to create package if not found. | `-defaultPath="Packages/MyMod"` |
-| **-skip** | *(Optional)* Folders to ignore when searching the Mods directory. | `-skip="Backups,Old"` |
+| **modName** | The filename of your package (without .package). | `-modName="Arro_MCR"` |
+| **dllPath** | Path to the compiled assembly. Use the IDE macro. | `-dllPath="$(TargetPath)"` |
+| **defaultPath** | *(Optional)* Sub-folder in Mods to create package if not found. | `-defaultPath="Packages/MyMod"` |
+| **skip** | *(Optional)* Folders to ignore when searching the Mods directory. | `-skip="Backups,Old"` |
 
 ## Credits & Legal
 * This tool uses the **s3pi** library (Copyright © 2009 Peter L Jones).
