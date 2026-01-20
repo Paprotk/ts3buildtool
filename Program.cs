@@ -15,12 +15,12 @@ namespace S3BuildTool
 
         public static readonly Dictionary<string, byte> LocaleMap = new()
         {
-            {"ENG_US", 0x00}, {"CHS_CN", 0x01}, {"CHT_CN", 0x02}, {"CZE_CZ", 0x03},
-            {"DAN_DK", 0x04}, {"DUT_NL", 0x05}, {"FIN_FI", 0x06}, {"FRE_FR", 0x07},
-            {"GER_DE", 0x08}, {"GRE_GR", 0x09}, {"HUN_HU", 0x0A}, {"ITA_IT", 0x0B},
-            {"JPN_JP", 0x0C}, {"KOR_KR", 0x0D}, {"NOR_NO", 0x0E}, {"POL_PL", 0x0F},
-            {"POR_PT", 0x10}, {"POR_BR", 0x11}, {"RUS_RU", 0x12}, {"SPA_ES", 0x13},
-            {"SPA_MX", 0x14}, {"SWE_SE", 0x15}, {"THA_TH", 0x16}
+            { "ENG_US", 0x00 }, { "CHS_CN", 0x01 }, { "CHT_CN", 0x02 }, { "CZE_CZ", 0x03 },
+            { "DAN_DK", 0x04 }, { "DUT_NL", 0x05 }, { "FIN_FI", 0x06 }, { "FRE_FR", 0x07 },
+            { "GER_DE", 0x08 }, { "GRE_GR", 0x09 }, { "HUN_HU", 0x0A }, { "ITA_IT", 0x0B },
+            { "JPN_JP", 0x0C }, { "KOR_KR", 0x0D }, { "NOR_NO", 0x0E }, { "POL_PL", 0x0F },
+            { "POR_PT", 0x10 }, { "POR_BR", 0x11 }, { "RUS_RU", 0x12 }, { "SPA_ES", 0x13 },
+            { "SPA_MX", 0x14 }, { "SWE_SE", 0x15 }, { "THA_TH", 0x16 }
         };
     }
 
@@ -28,7 +28,9 @@ namespace S3BuildTool
     {
         uint TargetType { get; }
         bool CanHandle(uint type, string name);
-        void Process(IPackage pkg, string resName, uint resType, string resDir, string modName, Dictionary<ulong, string> nameMap, string dllPath);
+
+        void Process(IPackage pkg, string resName, uint resType, string resDir, string modName,
+            Dictionary<ulong, string> nameMap, string dllPath);
     }
 
     // --- PROCESSOR IMPLEMENTATIONS ---
@@ -38,7 +40,8 @@ namespace S3BuildTool
         public uint TargetType => Sims3Constants.Type_S3SA;
         public bool CanHandle(uint type, string name) => type == TargetType;
 
-        public void Process(IPackage pkg, string resName, uint resType, string resDir, string modName, Dictionary<ulong, string> nameMap, string dllPath)
+        public void Process(IPackage pkg, string resName, uint resType, string resDir, string modName,
+            Dictionary<ulong, string> nameMap, string dllPath)
         {
             ulong hash = Program.HashFNV64(resName);
             IResourceKey key = new TGIBlock(1, null, resType, 0, hash);
@@ -48,10 +51,10 @@ namespace S3BuildTool
                 var script = new ScriptResource.ScriptResource(1, null);
                 using (FileStream fs = File.OpenRead(dllPath))
                 {
-                    // Directly use the Assembly property from your ScriptResource.cs
-                    script.Assembly = new BinaryReader(fs); 
+                    script.Assembly = new BinaryReader(fs);
                     pkg.AddResource(key, script.Stream, false);
                 }
+
                 Program.Log($"[S3SA] Injected DLL: {resName} (0x{hash:X16})", ConsoleColor.Cyan);
             }
             else
@@ -60,7 +63,7 @@ namespace S3BuildTool
                 pkg.AddResource(key, new MemoryStream(), false);
                 Console.Beep(600, 200);
             }
-            
+
             if (!nameMap.ContainsKey(hash)) nameMap.Add(hash, resName);
         }
     }
@@ -70,26 +73,46 @@ namespace S3BuildTool
         public uint TargetType => Sims3Constants.Type_STBL;
         public bool CanHandle(uint type, string name) => type == TargetType;
 
-        public void Process(IPackage pkg, string resName, uint resType, string resDir, string modName, Dictionary<ulong, string> nameMap, string dllPath)
+        public void Process(IPackage pkg, string resName, uint resType, string resDir, string modName,
+            Dictionary<ulong, string> nameMap, string dllPath)
         {
             if (resName == "*.stbl")
             {
+                Program.Log($"Processing STBL wildcard for mod: {modName}", ConsoleColor.DarkCyan);
                 ulong modBaseHash = Program.HashFNV64(modName) & 0x00FFFFFFFFFFFFFF;
+                Program.Log($"Mod base hash: 0x{modBaseHash:X16}", ConsoleColor.DarkCyan);
+
                 var stblFiles = Directory.GetFiles(resDir, "*.stbl", SearchOption.AllDirectories);
+                Program.Log($"Found {stblFiles.Length} .stbl files total", ConsoleColor.DarkCyan);
 
                 if (stblFiles.Length == 0)
+                {
                     Program.Log("Warning: No .stbl files found for wildcard search!", ConsoleColor.Yellow);
+                }
 
                 foreach (var file in stblFiles)
                 {
                     string fileName = Path.GetFileNameWithoutExtension(file);
+                    string fullPath = Path.GetFullPath(file);
+                    Program.Log($"Processing STBL file: {fileName} at {fullPath}", ConsoleColor.DarkCyan);
+
                     var locale = Sims3Constants.LocaleMap.FirstOrDefault(x => fileName.EndsWith(x.Key));
+
                     if (locale.Key != null)
                     {
                         ulong instanceId = ((ulong)locale.Value << 56) | modBaseHash;
-                        pkg.AddResource(new TGIBlock(1, null, resType, 0, instanceId), new MemoryStream(File.ReadAllBytes(file)), false);
+                        pkg.AddResource(new TGIBlock(1, null, resType, 0, instanceId),
+                            new MemoryStream(File.ReadAllBytes(file)), false);
                         if (!nameMap.ContainsKey(instanceId)) nameMap.Add(instanceId, fileName);
-                        Program.Log($"[STBL] Injected {fileName} (0x{instanceId:X16})", ConsoleColor.DarkCyan);
+                        Program.Log($"[STBL] Injected {fileName} (locale: {locale.Key}, id: 0x{instanceId:X16})",
+                            ConsoleColor.DarkCyan);
+                    }
+                    else
+                    {
+                        Program.Log($"Warning: STBL file '{fileName}' doesn't end with a valid locale code!",
+                            ConsoleColor.Yellow);
+                        Program.Log($"  Valid locales: {string.Join(", ", Sims3Constants.LocaleMap.Keys)}",
+                            ConsoleColor.Yellow);
                     }
                 }
             }
@@ -99,7 +122,8 @@ namespace S3BuildTool
                 string? file = Program.FindFile(resDir, resName);
                 if (file != null)
                 {
-                    pkg.AddResource(new TGIBlock(1, null, resType, 0, hash), new MemoryStream(File.ReadAllBytes(file)), false);
+                    pkg.AddResource(new TGIBlock(1, null, resType, 0, hash), new MemoryStream(File.ReadAllBytes(file)),
+                        false);
                     if (!nameMap.ContainsKey(hash)) nameMap.Add(hash, resName);
                     Program.Log($"[STBL] Added {resName} (0x{hash:X16})", ConsoleColor.DarkCyan);
                 }
@@ -110,17 +134,19 @@ namespace S3BuildTool
 
     class GenericProcessor : IResourceProcessor
     {
-        public uint TargetType => 0; 
+        public uint TargetType => 0;
         public bool CanHandle(uint type, string name) => true;
 
-        public void Process(IPackage pkg, string resName, uint resType, string resDir, string modName, Dictionary<ulong, string> nameMap, string dllPath)
+        public void Process(IPackage pkg, string resName, uint resType, string resDir, string modName,
+            Dictionary<ulong, string> nameMap, string dllPath)
         {
             ulong hash = Program.HashFNV64(resName);
             string? file = Program.FindFile(resDir, resName);
 
             if (file != null)
             {
-                pkg.AddResource(new TGIBlock(1, null, resType, 0, hash), new MemoryStream(File.ReadAllBytes(file)), false);
+                pkg.AddResource(new TGIBlock(1, null, resType, 0, hash), new MemoryStream(File.ReadAllBytes(file)),
+                    false);
                 if (!nameMap.ContainsKey(hash)) nameMap.Add(hash, resName);
                 Program.Log($"[GENERIC] Added {resName} (0x{hash:X16})", ConsoleColor.DarkGray);
             }
@@ -134,7 +160,7 @@ namespace S3BuildTool
     // --- MAIN PROGRAM LOGIC ---
     class Program
     {
-        private static readonly List<IResourceProcessor> processors = [ new S3SAProcessor(), new STBLProcessor() ];
+        private static readonly List<IResourceProcessor> processors = [new S3SAProcessor(), new STBLProcessor()];
         private static readonly IResourceProcessor genericProcessor = new GenericProcessor();
 
         static int Main(string[] args)
@@ -146,58 +172,59 @@ namespace S3BuildTool
                 if (!paramsMap.ContainsKey("modname") || !paramsMap.ContainsKey("dllpath"))
                 {
                     Log("Error: Missing parameters -modName or -dllPath", ConsoleColor.Red);
-                    Console.Beep(440, 500); 
+                    Console.Beep(440, 500);
                     return 1;
                 }
 
                 string modName = paramsMap["modname"];
                 string dllPath = paramsMap["dllpath"].Trim('\"');
-                
+
                 string? defaultPath = null;
                 if (!paramsMap.TryGetValue("defaultpath", out var tempDefaultPath))
                     defaultPath = null;
                 else
                     defaultPath = tempDefaultPath;
-    
-                string? skipFolders = null;
+
+                string? skipFolders;
                 if (!paramsMap.TryGetValue("skip", out var tempSkipFolders))
                     skipFolders = null;
                 else
                     skipFolders = tempSkipFolders;
-                
+
                 string toolDir = AppDomain.CurrentDomain.BaseDirectory;
                 string? solutionDir = Directory.GetParent(toolDir.TrimEnd(Path.DirectorySeparatorChar))?.FullName;
-                string modsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Electronic Arts", "The Sims 3", "Mods");
+                string modsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                    "Electronic Arts", "The Sims 3", "Mods");
 
                 Log($"Building Package: {modName}", ConsoleColor.White);
-                
-                // Parse skip folders into a list
+
                 List<string> skipFolderList = new List<string>();
                 if (!string.IsNullOrEmpty(skipFolders))
                 {
-                    skipFolderList = skipFolders.Split(',', ';')
-                        .Select(s => s.Trim())
-                        .Where(s => !string.IsNullOrEmpty(s))
-                        .ToList();
-                    Log($"Skipping folders: {string.Join(", ", skipFolderList)}", ConsoleColor.DarkGray);
+                    if (skipFolders != null)
+                        skipFolderList = skipFolders.Split(',', ';')
+                            .Select(s => s.Trim())
+                            .Where(s => !string.IsNullOrEmpty(s))
+                            .ToList();
                 }
 
                 // Search for existing mod with the same name
-                string packagePath = FindExistingModPackage(modsDir, modName, skipFolderList);
-                
+                string? packagePath = FindExistingModPackage(modsDir, modName, skipFolderList);
+
                 if (packagePath == null)
                 {
                     // No existing mod found, use default path if specified
                     if (!string.IsNullOrEmpty(defaultPath))
                     {
                         // Combine with Mods directory and normalize path
-                        defaultPath = defaultPath.Replace('/', Path.DirectorySeparatorChar)
-                                                 .Replace('\\', Path.DirectorySeparatorChar);
-                        packagePath = Path.Combine(modsDir, defaultPath, $"{modName}.package");
-                        
+                        defaultPath = defaultPath?.Replace('/', Path.DirectorySeparatorChar)
+                            .Replace('\\', Path.DirectorySeparatorChar);
+                        if (defaultPath != null) packagePath = Path.Combine(modsDir, defaultPath, $"{modName}.package");
+
                         // Ensure directory exists
                         Directory.CreateDirectory(Path.GetDirectoryName(packagePath)!);
-                        Log($"No existing mod found. Creating new package at default path: {packagePath}", ConsoleColor.Yellow);
+                        Log($"No existing mod found. Creating new package at default path: {packagePath}",
+                            ConsoleColor.Yellow);
                     }
                     else
                     {
@@ -218,34 +245,33 @@ namespace S3BuildTool
                         Log($"Deleted existing mod for replacement.", ConsoleColor.Yellow);
                     }
                 }
-                
-                if (solutionDir != null) 
-                    BuildPackage(solutionDir, packagePath, modName, dllPath);
+
+                if (solutionDir != null)
+                    if (packagePath != null)
+                        BuildPackage(solutionDir, packagePath, modName, dllPath);
 
                 Log($"[SUCCESS] Package built successfully at: {packagePath}", ConsoleColor.Green);
-                Console.Beep(1000, 300); 
+                Console.Beep(1000, 300);
                 return 0;
             }
             catch (Exception ex)
             {
                 Log($"[FATAL ERROR] {ex.Message}", ConsoleColor.Red);
-                Console.Beep(440, 800); 
+                Console.Beep(440, 800);
                 return 1;
             }
-            finally { Console.ForegroundColor = originalColor; }
+            finally
+            {
+                Console.ForegroundColor = originalColor;
+            }
         }
 
-        /// <summary>
-        /// Searches for existing mod package with the same name anywhere in the Mods directory
-        /// </summary>
         static string? FindExistingModPackage(string modsDir, string modName, List<string> skipFolders)
         {
             try
             {
-                // Search for package files recursively in the Mods directory, skipping specified folders
                 var packageFiles = GetPackageFilesRecursive(modsDir, skipFolders);
-                
-                // First pass: exact name match
+
                 foreach (var file in packageFiles)
                 {
                     string fileName = Path.GetFileNameWithoutExtension(file);
@@ -254,22 +280,18 @@ namespace S3BuildTool
                         return file;
                     }
                 }
-                
-                // Second pass: partial name match (case-insensitive)
+
                 foreach (var file in packageFiles)
                 {
                     string fileName = Path.GetFileNameWithoutExtension(file);
-                    
-                    // Check if the filename contains the mod name (case-insensitive)
+
                     if (fileName.IndexOf(modName, StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         Log($"Found potential matching mod: {fileName}", ConsoleColor.DarkGray);
-                        // You could add additional logic here to confirm it's the same mod
-                        // For now, we'll use it as a match
                         return file;
                     }
                 }
-                
+
                 return null;
             }
             catch (Exception ex)
@@ -279,30 +301,24 @@ namespace S3BuildTool
             }
         }
 
-        /// <summary>
-        /// Recursively gets all package files while skipping specified folders
-        /// </summary>
         static List<string> GetPackageFilesRecursive(string directory, List<string> skipFolders)
         {
             var packageFiles = new List<string>();
-            
+
             try
             {
-                // Get all .package files in current directory
                 packageFiles.AddRange(Directory.GetFiles(directory, "*.package"));
-                
-                // Recursively search subdirectories
+
                 foreach (var subDir in Directory.GetDirectories(directory))
                 {
                     string dirName = Path.GetFileName(subDir);
-                    
-                    // Skip this folder if it's in the skip list
+
                     if (skipFolders.Any(skip => dirName.Equals(skip, StringComparison.OrdinalIgnoreCase)))
                     {
                         Log($"Skipping folder: {dirName}", ConsoleColor.DarkGray);
                         continue;
                     }
-                    
+
                     packageFiles.AddRange(GetPackageFilesRecursive(subDir, skipFolders));
                 }
             }
@@ -314,13 +330,14 @@ namespace S3BuildTool
             {
                 Log($"Warning: Error accessing directory {directory}: {ex.Message}", ConsoleColor.DarkYellow);
             }
-            
+
             return packageFiles;
         }
 
         static void BuildPackage(string solutionDir, string packagePath, string modName, string dllPath)
         {
-            string? resDir = Directory.GetDirectories(solutionDir, "resources", SearchOption.AllDirectories).FirstOrDefault();
+            string? resDir = Directory.GetDirectories(solutionDir, "resources", SearchOption.AllDirectories)
+                .FirstOrDefault();
             if (resDir == null) throw new Exception("Resources folder not found in solution.");
 
             IPackage pkg = Package.NewPackage(1);
@@ -332,7 +349,8 @@ namespace S3BuildTool
                 string? resName = res.Attribute("name")?.Value;
                 uint resType = Convert.ToUInt32(res.Attribute("type")?.Value, 16);
 
-                var processor = processors.FirstOrDefault(p => resName != null && p.CanHandle(resType, resName)) ?? genericProcessor;
+                var processor = processors.FirstOrDefault(p => resName != null && p.CanHandle(resType, resName)) ??
+                                genericProcessor;
                 if (resName != null)
                 {
                     processor.Process(pkg, resName, resType, resDir, modName, collectedNames, dllPath);
@@ -350,14 +368,14 @@ namespace S3BuildTool
             if (collectedNames.Count == 0) return;
 
             Log($"[NAMEMAP] Writing 0x0166038C with {collectedNames.Count} entries...", ConsoleColor.Cyan);
-            
+
             var nameMapRes = new NameMapResource.NameMapResource(1, null);
             foreach (var kvp in collectedNames)
             {
                 if (!nameMapRes.ContainsKey(kvp.Key))
                     nameMapRes.Add(kvp.Key, kvp.Value);
             }
-            
+
             IResourceKey nameMapKey = new TGIBlock(1, null, Sims3Constants.Type_NameMap, 0, 0);
             pkg.AddResource(nameMapKey, nameMapRes.Stream, false);
         }
@@ -365,15 +383,21 @@ namespace S3BuildTool
         public static string? FindFile(string dir, string name)
         {
             return Directory.GetFiles(dir, "*.*", SearchOption.AllDirectories)
-                .FirstOrDefault(f => Path.GetFileNameWithoutExtension(f).Equals(name, StringComparison.OrdinalIgnoreCase) 
-                                  || Path.GetFileName(f).Equals(name, StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(f =>
+                    Path.GetFileNameWithoutExtension(f).Equals(name, StringComparison.OrdinalIgnoreCase)
+                    || Path.GetFileName(f).Equals(name, StringComparison.OrdinalIgnoreCase));
         }
 
         public static ulong HashFNV64(string input)
         {
             input = input.ToLowerInvariant();
             ulong hash = Sims3Constants.Fnv64Offset;
-            foreach (char c in input) { hash *= Sims3Constants.Fnv64Prime; hash ^= (byte)c; }
+            foreach (char c in input)
+            {
+                hash *= Sims3Constants.Fnv64Prime;
+                hash ^= (byte)c;
+            }
+
             return hash;
         }
 
@@ -396,6 +420,7 @@ namespace S3BuildTool
                     map[parts[0].ToLower()] = parts[1];
                 }
             }
+
             return map;
         }
     }

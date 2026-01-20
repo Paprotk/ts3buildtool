@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ts3buildtool")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+24f0d5e3eb5902b876bc3a38b47e30763c474a4c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+87748d7507ea17cb7391e95e109e46ba48c17ff7")]
 [assembly: System.Reflection.AssemblyProductAttribute("ts3buildtool")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ts3buildtool")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
