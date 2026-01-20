@@ -152,19 +152,77 @@ namespace S3BuildTool
 
                 string modName = paramsMap["modname"];
                 string dllPath = paramsMap["dllpath"].Trim('\"');
+                
+                string? defaultPath = null;
+                if (!paramsMap.TryGetValue("defaultpath", out var tempDefaultPath))
+                    defaultPath = null;
+                else
+                    defaultPath = tempDefaultPath;
+    
+                string? skipFolders = null;
+                if (!paramsMap.TryGetValue("skip", out var tempSkipFolders))
+                    skipFolders = null;
+                else
+                    skipFolders = tempSkipFolders;
+                
                 string toolDir = AppDomain.CurrentDomain.BaseDirectory;
                 string? solutionDir = Directory.GetParent(toolDir.TrimEnd(Path.DirectorySeparatorChar))?.FullName;
                 string modsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Electronic Arts", "The Sims 3", "Mods");
 
                 Log($"Building Package: {modName}", ConsoleColor.White);
+                
+                // Parse skip folders into a list
+                List<string> skipFolderList = new List<string>();
+                if (!string.IsNullOrEmpty(skipFolders))
+                {
+                    skipFolderList = skipFolders.Split(',', ';')
+                        .Select(s => s.Trim())
+                        .Where(s => !string.IsNullOrEmpty(s))
+                        .ToList();
+                    Log($"Skipping folders: {string.Join(", ", skipFolderList)}", ConsoleColor.DarkGray);
+                }
 
-                string packagePath = Path.Combine(modsDir, "Packages", $"{modName}.package");
-                if (File.Exists(packagePath)) File.Delete(packagePath);
+                // Search for existing mod with the same name
+                string packagePath = FindExistingModPackage(modsDir, modName, skipFolderList);
+                
+                if (packagePath == null)
+                {
+                    // No existing mod found, use default path if specified
+                    if (!string.IsNullOrEmpty(defaultPath))
+                    {
+                        // Combine with Mods directory and normalize path
+                        defaultPath = defaultPath.Replace('/', Path.DirectorySeparatorChar)
+                                                 .Replace('\\', Path.DirectorySeparatorChar);
+                        packagePath = Path.Combine(modsDir, defaultPath, $"{modName}.package");
+                        
+                        // Ensure directory exists
+                        Directory.CreateDirectory(Path.GetDirectoryName(packagePath)!);
+                        Log($"No existing mod found. Creating new package at default path: {packagePath}", ConsoleColor.Yellow);
+                    }
+                    else
+                    {
+                        // No default path specified, use Packages folder
+                        string packagesDir = Path.Combine(modsDir, "Packages");
+                        Directory.CreateDirectory(packagesDir);
+                        packagePath = Path.Combine(packagesDir, $"{modName}.package");
+                        Log($"No existing mod found. Creating new package at: {packagePath}", ConsoleColor.Yellow);
+                    }
+                }
+                else
+                {
+                    // Found existing mod, delete it for replacement
+                    if (File.Exists(packagePath))
+                    {
+                        Log($"Found existing mod at: {packagePath}", ConsoleColor.Yellow);
+                        File.Delete(packagePath);
+                        Log($"Deleted existing mod for replacement.", ConsoleColor.Yellow);
+                    }
+                }
                 
                 if (solutionDir != null) 
                     BuildPackage(solutionDir, packagePath, modName, dllPath);
 
-                Log("[SUCCESS] Package built successfully.", ConsoleColor.Green);
+                Log($"[SUCCESS] Package built successfully at: {packagePath}", ConsoleColor.Green);
                 Console.Beep(1000, 300); 
                 return 0;
             }
@@ -175,6 +233,89 @@ namespace S3BuildTool
                 return 1;
             }
             finally { Console.ForegroundColor = originalColor; }
+        }
+
+        /// <summary>
+        /// Searches for existing mod package with the same name anywhere in the Mods directory
+        /// </summary>
+        static string? FindExistingModPackage(string modsDir, string modName, List<string> skipFolders)
+        {
+            try
+            {
+                // Search for package files recursively in the Mods directory, skipping specified folders
+                var packageFiles = GetPackageFilesRecursive(modsDir, skipFolders);
+                
+                // First pass: exact name match
+                foreach (var file in packageFiles)
+                {
+                    string fileName = Path.GetFileNameWithoutExtension(file);
+                    if (fileName.Equals(modName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return file;
+                    }
+                }
+                
+                // Second pass: partial name match (case-insensitive)
+                foreach (var file in packageFiles)
+                {
+                    string fileName = Path.GetFileNameWithoutExtension(file);
+                    
+                    // Check if the filename contains the mod name (case-insensitive)
+                    if (fileName.IndexOf(modName, StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        Log($"Found potential matching mod: {fileName}", ConsoleColor.DarkGray);
+                        // You could add additional logic here to confirm it's the same mod
+                        // For now, we'll use it as a match
+                        return file;
+                    }
+                }
+                
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Log($"Warning: Error searching for existing mods: {ex.Message}", ConsoleColor.DarkYellow);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Recursively gets all package files while skipping specified folders
+        /// </summary>
+        static List<string> GetPackageFilesRecursive(string directory, List<string> skipFolders)
+        {
+            var packageFiles = new List<string>();
+            
+            try
+            {
+                // Get all .package files in current directory
+                packageFiles.AddRange(Directory.GetFiles(directory, "*.package"));
+                
+                // Recursively search subdirectories
+                foreach (var subDir in Directory.GetDirectories(directory))
+                {
+                    string dirName = Path.GetFileName(subDir);
+                    
+                    // Skip this folder if it's in the skip list
+                    if (skipFolders.Any(skip => dirName.Equals(skip, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        Log($"Skipping folder: {dirName}", ConsoleColor.DarkGray);
+                        continue;
+                    }
+                    
+                    packageFiles.AddRange(GetPackageFilesRecursive(subDir, skipFolders));
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                Log($"Warning: No access to directory: {directory}", ConsoleColor.DarkYellow);
+            }
+            catch (Exception ex)
+            {
+                Log($"Warning: Error accessing directory {directory}: {ex.Message}", ConsoleColor.DarkYellow);
+            }
+            
+            return packageFiles;
         }
 
         static void BuildPackage(string solutionDir, string packagePath, string modName, string dllPath)

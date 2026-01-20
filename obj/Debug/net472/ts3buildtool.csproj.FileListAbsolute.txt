@@ -11,3 +11,4 @@ C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\obj\Debug\net472\ts3buildt
 C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\obj\Debug\net472\ts3buildtool.sourcelink.json
 C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\obj\Debug\net472\ts3buildtool.csproj.Fody.CopyLocal.cache
 C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\obj\Debug\net472\ts3buildtool.csproj.Fody.RuntimeCopyLocal.cache
+C:\Users\Arek\RiderProjects\ts3buildtool\ts3buildtool\obj\Debug\net472\ts3buildtool.exe.config
