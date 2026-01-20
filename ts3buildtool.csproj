@@ -5,7 +5,7 @@
         <Nullable>enable</Nullable>
         <UseWindowsForms>true</UseWindowsForms>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net472</TargetFramework>  <!-- Add this line -->
+        <TargetFramework>net472</TargetFramework>
         <LangVersion>default</LangVersion>
     </PropertyGroup>
 
