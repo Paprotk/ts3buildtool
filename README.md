@@ -3,15 +3,11 @@ A small C# utility for The Sims 3 modding that automatically imports your compil
 
 ## How it works
 
-1. **Build**: Build your project in your IDE.
-2. **Locate**: The tool looks for an existing package in your `Mods` folder.
-3. **Recreate**: 
-   * If a package is found, the tool targets that specific path to overwrite it.
-   * If no package exists, it defines a new path in your `Mods` folder (defaults to a `Packages` subfolder unless `-defaultPath` is specified).
-   * The tool then deletes the old file and creates a fresh package at that location.
-4. **Add**: It reads your `nameMap.xml` and imports all listed resources from your `resources` folder and its subfolders.
-5. **Inject**: It takes your freshly compiled DLL and injects it into the `S3SA` resource automatically.
-6. **Localize**: It supports automatic injection of localized string tables (`.stbl`) by parsing your resource directory and mapping them to correct language codes based on their filenames.
+1. **Compile**: Build your project normally in your IDE.
+2. **Locate & Replace**: The tool scans your `Mods` folder for an existing package. If found, it deletes it to ensure a clean slate. If it's a first-time build, it preps a fresh path (defaulting to a `Packages` subfolder unless `-defaultPath` is used).
+3. **Import Resources**: It reads your `nameMap.xml` and automatically packs all declared assets from your `resources` folder (including subfolders).
+4. **Inject Script**: Your newly compiled DLL is embedded into the `S3SA` resource.
+5. **Localize**: The tool detects any string tables (`.stbl`) in your resource directory, automatically mapping and injecting them with the correct language codes based on their filenames.
 
 ## Setup
 1. Download the latest release from the [Releases page](https://github.com/Paprotk/ts3buildtool/releases).
@@ -82,7 +78,7 @@ The tool uses named parameters, so the order of arguments does not matter.
 | :--- | :--- | :--- |
 | **modName** | The filename of your package (without `.package`). | `-modName="Arro_MCR"` |
 | **dllPath** | Path to the compiled assembly. Use the IDE macro. | `-dllPath="$(TargetPath)"` |
-| **projectDir** | *(Optional)* Explicit path to the project directory containing your `resources` folder. If omitted, the tool attempts to auto-discover it. | `-projectDir="$(ProjectDir)"` |
+| **projectDir** | *(Optional)* Explicit path to the project directory containing your `resources` folder. If omitted, the tool attempts to auto-discover it based on the tool's `.exe` location. | `-projectDir="$(ProjectDir)"` |
 | **defaultPath** | *(Optional)* Sub-folder in the `Mods` directory to create the package if not found. | `-defaultPath="Packages/MyMod"` |
 | **skip** | *(Optional)* Folders to ignore when searching the `Mods` directory (comma separated). | `-skip="Backups,Old"` |
 
