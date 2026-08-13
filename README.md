@@ -66,10 +66,42 @@ A small C# utility for The Sims 3 modding that automatically imports your compil
 ```
 
 ## Localization (STBL) Support
-The tool can automatically pack multiple string tables for your mod and generate correct Instance IDs based on the locale language code and your mod's name hash.
-1. Save your `.stbl` files ending with a valid Sims 3 locale code (e.g., `_ENG_US`, `_SPA_ES`, `_POL_PL`).
-2. Add `<resource name="*.stbl" type="0x220557DA" />` to your `nameMap.xml`.
-3. The tool will find all matching files in your `resources` folder and inject them properly aligned with your mod's base hash.
+The tool can automatically pack multiple string tables for your mod and generate the correct Instance IDs based on the locale language code and your mod's name hash.
+
+### How to use:
+1. **Name your files correctly:** Save your `.stbl` files so they end with a valid Sims 3 locale code (see the table below). 
+   * **Example:** `YourModName_ENG_US.stbl` or `YourModName_POL_PL.stbl`
+2. **Update your XML:** Add `<resource name="*.stbl" type="0x220557DA" />` to your `nameMap.xml`.
+3. **Build:** The tool will automatically find all matching `.stbl` files in your `resources` folder (and subfolders) and inject them with Instance IDs aligned to your mod's base hash.
+
+### Supported Locale Codes
+Append one of the following codes to the end of your filename before the `.stbl` extension. *(Note: The tool is case-sensitive, so lowercase codes like `_eng_us.stbl` will not work).*
+
+| Locale Code | Language |
+| :--- | :--- |
+| **`_ENG_US`** | English (US) |
+| **`_CHS_CN`** | Chinese (Simplified) |
+| **`_CHT_CN`** | Chinese (Traditional) |
+| **`_CZE_CZ`** | Czech |
+| **`_DAN_DK`** | Danish |
+| **`_DUT_NL`** | Dutch |
+| **`_FIN_FI`** | Finnish |
+| **`_FRE_FR`** | French |
+| **`_GER_DE`** | German |
+| **`_GRE_GR`** | Greek |
+| **`_HUN_HU`** | Hungarian |
+| **`_ITA_IT`** | Italian |
+| **`_JPN_JP`** | Japanese |
+| **`_KOR_KR`** | Korean |
+| **`_NOR_NO`** | Norwegian |
+| **`_POL_PL`** | Polish |
+| **`_POR_PT`** | Portuguese (Portugal) |
+| **`_POR_BR`** | Portuguese (Brazil) |
+| **`_RUS_RU`** | Russian |
+| **`_SPA_ES`** | Spanish (Spain) |
+| **`_SPA_MX`** | Spanish (Mexico) |
+| **`_SWE_SE`** | Swedish |
+| **`_THA_TH`** | Thai |
 
 ## Command Line Arguments
 The tool uses named parameters, so the order of arguments does not matter.
