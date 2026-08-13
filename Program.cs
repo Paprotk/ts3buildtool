@@ -178,21 +178,61 @@ namespace S3BuildTool
 
                 string modName = paramsMap["modname"];
                 string dllPath = paramsMap["dllpath"].Trim('\"');
+                
+                string? projectDir = paramsMap.TryGetValue("projectdir", out var pDir) ? pDir.Trim('\"') : null;
+                string? resDir = null;
 
-                string? defaultPath = null;
-                if (!paramsMap.TryGetValue("defaultpath", out var tempDefaultPath))
-                    defaultPath = null;
+                if (!string.IsNullOrEmpty(projectDir))
+                {
+                    resDir = Path.Combine(projectDir, "resources");
+                    Log($"Using explicit project directory: {projectDir}", ConsoleColor.Gray);
+                }
+                
                 else
-                    defaultPath = tempDefaultPath;
+                {
+                    string toolDir = AppDomain.CurrentDomain.BaseDirectory;
+                    string? solutionDir = Directory.GetParent(toolDir.TrimEnd(Path.DirectorySeparatorChar))?.FullName;
+    
+                    if (solutionDir != null)
+                    {
+                        var allResourcesDirs = Directory.GetDirectories(solutionDir, "resources", SearchOption.AllDirectories).ToList();
+        
+                        if (allResourcesDirs.Count == 0)
+                        {
+                            Log("Error: No 'resources' folder found in solution!", ConsoleColor.Red);
+                            return 1;
+                        }
+                        else if (allResourcesDirs.Count == 1)
+                        {
+                            resDir = allResourcesDirs[0];
+                        }
+                        else
+                        {
+                            resDir = allResourcesDirs[0];
+            
+                            Log($"Warning: Multiple 'resources' folders found ({allResourcesDirs.Count})!", ConsoleColor.Yellow);
+                            Console.Beep(600, 200);
+                            Log("  Consider specifying -projectDir parameter to select correct folder.", ConsoleColor.Yellow);
+                        }
+                    }
+                    else
+                    {
+                        Log("Error: Could not determine solution directory.", ConsoleColor.Red);
+                        return 1;
+                    }
+                }
 
-                string? skipFolders;
-                if (!paramsMap.TryGetValue("skip", out var tempSkipFolders))
-                    skipFolders = null;
-                else
-                    skipFolders = tempSkipFolders;
+                if (string.IsNullOrEmpty(resDir) || !Directory.Exists(resDir))
+                {
+                    Log($"Error: 'resources' folder not found! (Looked in: {resDir ?? "Unknown"})", ConsoleColor.Red);
+                    return 1;
+                }
+                
+                Log($"Resource Directory: {resDir}", ConsoleColor.DarkGray);
 
-                string toolDir = AppDomain.CurrentDomain.BaseDirectory;
-                string? solutionDir = Directory.GetParent(toolDir.TrimEnd(Path.DirectorySeparatorChar))?.FullName;
+                string? defaultPath = paramsMap.TryGetValue("defaultpath", out var tempDefaultPath) ? tempDefaultPath : null;
+                string? skipFolders = paramsMap.TryGetValue("skip", out var tempSkipFolders) ? tempSkipFolders : null;
+
                 string modsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                     "Electronic Arts", "The Sims 3", "Mods");
 
@@ -201,34 +241,28 @@ namespace S3BuildTool
                 List<string> skipFolderList = new List<string>();
                 if (!string.IsNullOrEmpty(skipFolders))
                 {
-                    if (skipFolders != null)
-                        skipFolderList = skipFolders.Split(',', ';')
+                    skipFolderList = skipFolders.Split(',', ';')
                             .Select(s => s.Trim())
                             .Where(s => !string.IsNullOrEmpty(s))
                             .ToList();
                 }
 
-                // Search for existing mod with the same name
                 string? packagePath = FindExistingModPackage(modsDir, modName, skipFolderList);
 
                 if (packagePath == null)
                 {
-                    // No existing mod found, use default path if specified
                     if (!string.IsNullOrEmpty(defaultPath))
                     {
-                        // Combine with Mods directory and normalize path
                         defaultPath = defaultPath?.Replace('/', Path.DirectorySeparatorChar)
                             .Replace('\\', Path.DirectorySeparatorChar);
                         if (defaultPath != null) packagePath = Path.Combine(modsDir, defaultPath, $"{modName}.package");
-
-                        // Ensure directory exists
+                        
                         Directory.CreateDirectory(Path.GetDirectoryName(packagePath)!);
                         Log($"No existing mod found. Creating new package at default path: {packagePath}",
                             ConsoleColor.Yellow);
                     }
                     else
                     {
-                        // No default path specified, use Packages folder
                         string packagesDir = Path.Combine(modsDir, "Packages");
                         Directory.CreateDirectory(packagesDir);
                         packagePath = Path.Combine(packagesDir, $"{modName}.package");
@@ -237,7 +271,6 @@ namespace S3BuildTool
                 }
                 else
                 {
-                    // Found existing mod, delete it for replacement
                     if (File.Exists(packagePath))
                     {
                         Log($"Found existing mod at: {packagePath}", ConsoleColor.Yellow);
@@ -245,10 +278,10 @@ namespace S3BuildTool
                         Log($"Deleted existing mod for replacement.", ConsoleColor.Yellow);
                     }
                 }
-
-                if (solutionDir != null)
+                
+                if (resDir != null)
                     if (packagePath != null)
-                        BuildPackage(solutionDir, packagePath, modName, dllPath);
+                        BuildPackage(resDir, packagePath, modName, dllPath);
 
                 Log($"[SUCCESS] Package built successfully at: {packagePath}", ConsoleColor.Green);
                 Console.Beep(1000, 300);
@@ -333,15 +366,16 @@ namespace S3BuildTool
 
             return packageFiles;
         }
-
-        static void BuildPackage(string solutionDir, string packagePath, string modName, string dllPath)
+        
+        static void BuildPackage(string resDir, string packagePath, string modName, string dllPath)
         {
-            string? resDir = Directory.GetDirectories(solutionDir, "resources", SearchOption.AllDirectories)
-                .FirstOrDefault();
-            if (resDir == null) throw new Exception("Resources folder not found in solution.");
-
             IPackage pkg = Package.NewPackage(1);
-            XDocument xml = XDocument.Load(Path.Combine(resDir, "nameMap.xml"));
+            string nameMapPath = Path.Combine(resDir, "nameMap.xml");
+
+            if (!File.Exists(nameMapPath))
+                throw new FileNotFoundException($"Could not find nameMap.xml in {resDir}");
+
+            XDocument xml = XDocument.Load(nameMapPath);
             Dictionary<ulong, string> collectedNames = new Dictionary<ulong, string>();
 
             foreach (var res in xml.Descendants("resource"))

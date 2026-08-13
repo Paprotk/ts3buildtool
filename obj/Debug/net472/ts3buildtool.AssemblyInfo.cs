@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ts3buildtool")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5243f3d60e25d03e0a136e32ffcd06a354aeca93")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8bf484ee352877e046b741db110da58d967dafb0")]
 [assembly: System.Reflection.AssemblyProductAttribute("ts3buildtool")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ts3buildtool")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
