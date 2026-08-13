@@ -80,7 +80,7 @@ The tool uses named parameters, so the order of arguments does not matter.
 | **dllPath** | Path to the compiled assembly. Use the IDE macro. | `-dllPath="$(TargetPath)"` |
 | **projectDir** | *(Optional)* Explicit path to the project directory containing your `resources` folder. If omitted, the tool attempts to auto-discover it based on the tool's `.exe` location. | `-projectDir="$(ProjectDir)"` |
 | **defaultPath** | *(Optional)* Sub-folder in the `Mods` directory to create the package if not found. | `-defaultPath="Packages/MyMod"` |
-| **skip** | *(Optional)* Folders to ignore when searching the `Mods` directory (comma separated). | `-skip="Backups,Old"` |
+| **skip** | *(Optional)* Folders to ignore when searching the `Mods` directory (comma or semicolon separated). | `-skip="Backups,Old"` |
 
 ## Credits & Legal
 * This tool uses the **s3pi** library (Copyright © 2009 Peter L Jones).
