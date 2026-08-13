@@ -31,7 +31,7 @@ A small C# utility for The Sims 3 modding that automatically imports your compil
 │   └── ts3buildtool.exe    <-- The tool
 └── YourProject/
     ├── YourProject.csproj
-    ├── resources/          
+    ├── Resources/          
     │   ├── nameMap.xml
     │   ├── nameMap.xsd
     │   ├── XML/            
