@@ -4,7 +4,7 @@ A small C# utility for The Sims 3 modding that automatically imports your compil
 ## How it works
 
 1. **Compile**: Build your project normally in your IDE.
-2. **Locate & Replace**: The tool scans your `Mods` folder for an existing package. If found, it deletes it to ensure a clean slate. If it's a first-time build, it preps a fresh path (defaulting to a `Packages` subfolder unless `-defaultPath` is used).
+2. **Locate & Replace**: The tool scans your `Mods` folder for an existing package. If found, it ***deletes it*** to ensure a clean slate. If it's a first-time build, it preps a fresh path (defaulting to a `Packages` subfolder unless `-defaultPath` is used).
 3. **Import Resources**: It reads your `nameMap.xml` and automatically packs all declared assets from your `resources` folder (including subfolders).
 4. **Inject Script**: Your newly compiled DLL is embedded into the `S3SA` resource.
 5. **Localize**: The tool detects any string tables (`.stbl`) in your resource directory, automatically mapping and injecting them with the correct language codes based on their filenames.
