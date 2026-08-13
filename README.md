@@ -22,6 +22,11 @@ A small C# utility for The Sims 3 modding that automatically imports your compil
    `"$(SolutionDir)Tools\ts3buildtool.exe" -modName="YourModName" -dllPath="$(TargetPath)" -projectDir="$(ProjectDir)"`
    
 5. Change **modName** to your preferred filename; this name is used as the name for the created package file.
+6. **(Recommended) Ensure Resource Changes Trigger Rebuilds:** By default, IDEs only track C# file modifications for builds. If you modify a resource file (like an XML) without changing any code, your IDE might skip the build entirely, preventing the tool from running and package building. To fix this, open your `.csproj` file and add the following item group:
+   ```xml
+   <ItemGroup>
+     <UpToDateCheckInput Include="Resources\**\*"/>
+   </ItemGroup>
 
 ## Project Structure Example
 ```markdown
